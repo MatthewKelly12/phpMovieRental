@@ -36,5 +36,41 @@ class Rental
     public function daysRented()
     {
         return $this->daysRented;
-    }
+	}
+
+
+	/**
+     * @var int
+     */
+	private $rentalAmount;
+
+
+
+	/**
+     * @return int
+     */
+	public function rentalPrice()
+	{
+            $rentalAmount = 0;
+
+            switch($this->movie()->priceCode()) {
+				case Movie::REGULAR:
+					    $rentalAmount += 2;
+					    if ($this->daysRented() > 2) {
+					        $rentalAmount += ($this->daysRented() - 2) * 1.5;
+					    }
+					    break;
+                case Movie::NEW_RELEASE:
+                    $rentalAmount += $this->daysRented() * 3;
+                    break;
+                case Movie::CHILDRENS:
+                    $rentalAmount += 1.5;
+                    if ($this->daysRented() > 3) {
+                        $rentalAmount += ($this->daysRented() - 3) * 1.5;
+                    }
+                    break;
+			}
+			return $rentalAmount;
+	}
+
 }

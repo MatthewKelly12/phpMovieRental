@@ -5,7 +5,7 @@ class Customer
     /**
      * @var string
      */
-    private $name;
+	private $name;
 
     /**
      * @var Rental[]
@@ -17,8 +17,8 @@ class Customer
      */
     public function __construct($name)
     {
-        $this->name = $name;
-        $this->rentals = [];
+		$this->name = $name;
+		$this->rentals = [];
     }
 
     /**
@@ -35,52 +35,111 @@ class Customer
     public function addRental(Rental $rental)
     {
         $this->rentals[] = $rental;
-    }
+	}
+
+	/**
+     * @var int
+     */
+	private $totalAmount;
+
+
+	/**
+     * @return int
+     */
+	//  FUNCTION TO RETURN AMOUNT CUSTOMER OWES FOR ALL RENTALS
+	 public function amtOwed ()
+	 {
+		 $totalAmount = 0;
+		 foreach ($this->rentals as $rental) {
+            $totalAmount += $rental->rentalPrice();
+		}
+		return $totalAmount;
+	 }
+
+
+	 /**
+     * @var int
+     */
+	public $frequentRenterPoints;
+
+	/**
+     * @return int
+     */
+	//  FUNCTION TO RETURN ALL CUSTOMER FREQUENT RENTER POINTS
+	 public function getPoints ()
+	 {
+		$frequentRenterPoints = 0;
+		foreach ($this->rentals as $rental) {
+		$frequentRenterPoints++;
+
+		if ($rental->movie()->priceCode() === Movie::NEW_RELEASE && $rental->daysRented() > 1) {
+			$frequentRenterPoints++;
+		}
+		}
+		return $frequentRenterPoints;
+	 }
+
 
     /**
      * @return string
      */
     public function statement()
     {
-        $totalAmount = 0;
-        $frequentRenterPoints = 0;
-
         $result = 'Rental Record for ' . $this->name() . PHP_EOL;
 
         foreach ($this->rentals as $rental) {
-            $thisAmount = 0;
-
-            switch($rental->movie()->priceCode()) {
-                case Movie::REGULAR:
-                    $thisAmount += 2;
-                    if ($rental->daysRented() > 2) {
-                        $thisAmount += ($rental->daysRented() - 2) * 1.5;
-                    }
-                    break;
-                case Movie::NEW_RELEASE:
-                    $thisAmount += $rental->daysRented() * 3;
-                    break;
-                case Movie::CHILDRENS:
-                    $thisAmount += 1.5;
-                    if ($rental->daysRented() > 3) {
-                        $thisAmount += ($rental->daysRented() - 3) * 1.5;
-                    }
-                    break;
-            }
-
-            $totalAmount += $thisAmount;
-
-            $frequentRenterPoints++;
-            if ($rental->movie()->priceCode() === Movie::NEW_RELEASE && $rental->daysRented() > 1) {
-                $frequentRenterPoints++;
-            }
-
-            $result .= "\t" . str_pad($rental->movie()->name(), 30, ' ', STR_PAD_RIGHT) . "\t" . $thisAmount . PHP_EOL;
+            $result .= "\t" . str_pad($rental->movie()->name(), 30, ' ', STR_PAD_RIGHT) . "\t" . $rental->rentalPrice() . PHP_EOL;
         }
 
-        $result .= 'Amount owed is ' . $totalAmount . PHP_EOL;
-        $result .= 'You earned ' . $frequentRenterPoints . ' frequent renter points' . PHP_EOL;
+        $result .= 'Amount owed is ' . $this->amtOwed() . PHP_EOL;
+        $result .= 'You earned ' . $this->getPoints() . ' frequent renter points' . PHP_EOL;
 
         return $result;
-    }
+	}
+
+
+	/**
+     * @return template
+     */
+	public function htmlStatement()
+	{
+		include("template-statement.php");
+	}
+
+
+	/**
+     * @var int
+     */
+	private $rentalAmount;
+
+	// /**
+    //  * @return int
+    //  */
+	// public function rentalPrice()
+	// {
+	// 	$rentalAmount = 0;
+	// 	foreach ($this->rentals as $rental) {
+
+
+    //         switch($rental->movie()->priceCode()) {
+    //             case Movie::REGULAR:
+    //                 $rentalAmount += 2;
+    //                 if ($rental->daysRented() > 2) {
+    //                     $rentalAmount += ($rental->daysRented() - 2) * 1.5;
+    //                 }
+    //                 break;
+    //             case Movie::NEW_RELEASE:
+    //                 $rentalAmount += $rental->daysRented() * 3;
+    //                 break;
+    //             case Movie::CHILDRENS:
+    //                 $rentalAmount += 1.5;
+    //                 if ($rental->daysRented() > 3) {
+    //                     $rentalAmount += ($rental->daysRented() - 3) * 1.5;
+    //                 }
+    //                 break;
+	// 		}
+	// 	}
+	// 	return $rentalAmount;
+	// }
+
 }
